@@ -2,9 +2,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.exceptions import NotFound, ParseError, PermissionDenied
-from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_200_OK, HTTP_403_FORBIDDEN, HTTP_400_BAD_REQUEST, HTTP_201_CREATED
+from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_200_OK, HTTP_400_BAD_REQUEST
 from django.conf import settings
-from django.db.models import Prefetch #모델을 통해 직접 필터링하는 방식
 
 from .models import Booking
 from .serializers import BookingSerializer, BookingStoreSerializer
