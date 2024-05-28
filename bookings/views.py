@@ -28,7 +28,6 @@ class Bookings(APIView):
         start = (page - 1) * page_size
         end = start + page_size
 
-        # 사용자의 모든 예약된 상점 가져오기
         # prefetch_related: 조인을 하지 않고 개별 쿼리를 실행 후, django에서 직접 데이터 조합
         user_bookings = Booking.objects.filter(user__username=username).prefetch_related('store')
         
