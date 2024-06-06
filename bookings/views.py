@@ -4,6 +4,7 @@ from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnl
 from rest_framework.exceptions import NotFound, ParseError, PermissionDenied
 from rest_framework.status import HTTP_400_BAD_REQUEST, HTTP_200_OK, HTTP_400_BAD_REQUEST
 from django.conf import settings
+from django.db.models import Prefetch #모델을 통해 직접 필터링하는 방식
 
 from .models import Booking
 from .serializers import BookingSerializer, BookingStoreSerializer
@@ -28,6 +29,7 @@ class Bookings(APIView):
         start = (page - 1) * page_size
         end = start + page_size
 
+        # 사용자의 모든 예약된 상점 가져오기
         # prefetch_related: 조인을 하지 않고 개별 쿼리를 실행 후, django에서 직접 데이터 조합
         user_bookings = Booking.objects.filter(user__username=username).prefetch_related('store')
         
@@ -36,7 +38,7 @@ class Bookings(APIView):
         for booking in user_bookings:
             store_ids.extend(booking.store.values_list('id', flat=True))
 
-        # 상점 쿼리셋을 구성합니다.
+        # 상점 쿼리셋을 구성
         store_queryset = Store.objects.filter(id__in=store_ids)
 
         # 필터링 처리
@@ -55,18 +57,11 @@ class Bookings(APIView):
             raise ParseError(detail="Invalid 'type' parameter value.")
         
         # 검색 결과가 없을 경우 전체 예약된 상점 목록으로 다시 설정
-        if not store_queryset.exists():
-            store_queryset = Store.objects.filter(id__in=store_ids)
-            page = 1  # 페이지를 1로 초기화
-            start = (page - 1) * page_size
-            end = start + page_size
-
-        # 페이지네이션 처리
-        total_count = store_queryset.count()
-        if start >= total_count:  # 페이지네이션 범위를 벗어난 경우 초기화
-            page = 1
-            start = (page - 1) * page_size
-            end = start + page_size
+        # if not store_queryset.exists():
+        #     store_queryset = Store.objects.filter(id__in=store_ids)
+        #     page = 1  # 페이지를 1로 초기화
+        #     start = (page - 1) * page_size
+        #     end = start + page_size
 
         paginated_stores = store_queryset[start:end]
 
